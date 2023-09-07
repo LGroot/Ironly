@@ -30,7 +30,7 @@ async def on_command_error(error, ctx):
         print(error)
  
  
-@bot.slash_command(guild_ids=[1140620898773245952])
+@bot.slash_command(guild_ids=[1140620898773245952, 932801042544996363])
 async def stat(ctx):
     """Returns a CSV file of all users on the server."""
     await ctx.respond("Check your DMs", ephemeral=True)

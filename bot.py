@@ -1,5 +1,5 @@
 """A bot to list all members of a server."""
-import csv, os, time
+import csv, os, tempfile, time
 from dotenv import load_dotenv
  
 from discord.ext import commands
@@ -30,22 +30,26 @@ async def on_command_error(error, ctx):
         print(error)
  
  
-@bot.slash_command(guild_ids=[1140620898773245952, 932801042544996363])
+@bot.slash_command()
 async def stat(ctx):
     """Returns a CSV file of all users on the server."""
+
     await ctx.respond("Check your DMs", ephemeral=True)
     before = time.time()
     nicknames = [m.display_name for m in ctx.guild.members]
     roles = [m.roles for m in ctx.guild.members]
     
-    with open('temp.csv', mode='w', encoding='utf-8', newline='') as f:
+    with tempfile.TemporaryFile(mode='w+', encoding='utf-8', newline='') as f:
         writer = csv.writer(f, dialect='excel')
         for v,role in zip(nicknames, roles):
             writer.writerow([v, ",".join([r.name for r in role])])
-    after = time.time()
-    dm = await bot.create_dm(ctx.author)
-    await dm.send(file=File('temp.csv', filename='stats.csv'),
-                        content="Here you go! Generated in {:.4}ms.".format((after - before)*1000))
+        f.seek(0)
+
+        after = time.time()
+
+        dm = await bot.create_dm(ctx.author)
+        await dm.send(file=File(f, filename='stats.csv'),
+                      content="Here you go! Generated in {:.4}ms.".format((after - before)*1000))
  
  
 if __name__ == '__main__':
